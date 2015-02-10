@@ -5,19 +5,24 @@ import java.util.ArrayList;
  * @author Arpit Phanda
  */
 public class NeuronLayer {
-
+	
+	//number of neurons in the layer
 	private int numberOfNeurons;
 	
+	//getter function
 	public int getNumberOfNeurons() {
 		return numberOfNeurons;
 	}
 
+	//arraylist to hold neurons
 	private ArrayList<Neuron> neuronVector;
 	
+	//getter function to get the neuron arraylist
 	public ArrayList<Neuron> getNeuronVector() {
 		return neuronVector;
 	}
 
+	
 	//constructor; takes numberOfNeurons as input and initializes the neuronLayer 
 	public NeuronLayer(int numberOfNeurons, int numberOfNeuronsInNextLayer) {
 		
@@ -27,14 +32,17 @@ public class NeuronLayer {
 		System.out.println("Inside neuron Layer");
 		System.out.println("Number of neurons to create: "+this.numberOfNeurons);
 		
-		
-		for(int i=0; i<numberOfNeurons ; i++)
+		int i;
+		for( i=0; i<numberOfNeurons ; i++)
 		{
-			//TODO: for now input to neuron is i itself, change it to proper input
-			Neuron neuron = new Neuron(numberOfNeuronsInNextLayer, i); // i is the position in current layer
+			//i is the position in current layer needed for updation
+			Neuron neuron = new Neuron(numberOfNeuronsInNextLayer, i); 
 			System.out.println("added a neuron");
 			neuronVector.add(neuron);
 		}
+		
+		//setting bias value
+		neuronVector.get(i-1).setOutputVal(1.0);
 		
 	}
 }

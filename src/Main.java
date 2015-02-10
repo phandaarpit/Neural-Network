@@ -10,16 +10,35 @@ public class Main {
 		//output layer with 1 neuron 
 		ArrayList<Integer> structureOfNN = new ArrayList<Integer>();
 		ArrayList<Double> targetValues = new ArrayList<Double>();
-		structureOfNN.add(3);
-		structureOfNN.add(2);
-		structureOfNN.add(1);
+		targetValues.add(0.0);
+		targetValues.add(1.0);
+		targetValues.add(1.0);
+		targetValues.add(0.0);
 		
-		NeuralNet net = new NeuralNet(structureOfNN);
-		ArrayList<Double> inputs = new ArrayList<Double>();
-		inputs.add(1.3);
-		inputs.add(2.5);
-		inputs.add(3.6);
-		net.feedForwardNN(inputs);
+		ArrayList<ArrayList<Double>> inputs = new ArrayList<ArrayList<Double>>();
+		ArrayList<Double> input = new ArrayList<Double>();
+		input.add(0.0);
+		input.add(0.0);
+		inputs.add(input);
+		
+		input = new ArrayList<Double>();
+		input.add(0.0);
+		input.add(1.0);
+		inputs.add(input);
+		
+		input = new ArrayList<Double>();
+		input.add(1.0);
+		input.add(0.0);
+		inputs.add(input);
+		
+		input = new ArrayList<Double>();
+		input.add(1.0);
+		input.add(1.0);
+		inputs.add(input);
+		
+		structureOfNN.add(2); //input layer
+		structureOfNN.add(3); //hidden layer
+		structureOfNN.add(1); //output layer
 	}
 
 }

@@ -17,30 +17,43 @@ public class NeuralNet {
 	//constructor
 	NeuralNet(ArrayList<Integer> structureOfNN)
 	{
-		System.out.println("Time to create a neural net");
+		System.out.println("\t\tNeural Net with Back-propagation");
+		System.out.println("\t\t--------------------------------");
+		
 		//instantiate neuronLayers to hold each layer; number of neurons in each layer are specified in the structure of NN passed in constructor
-		this.neuronLayers = new ArrayList<NeuronLayer>();
+		this.neuronLayers = new ArrayList<NeuronLayer>();		
 		
+		//number of layers is the size of the arraylist passed.
+		//ex: [5,4,3] means 3 layers with 1 hidden layer
 		this.numberOfLayers = structureOfNN.size();
-		System.out.println("number of neuron layers: "+numberOfLayers);
 		
+		System.out.println("Size of the Neural Network: "+numberOfLayers);
+		
+		//number of hidden layers is the total layers i.e. the size of the array-2 layers( one for input and one for output) 
 		this.numberOfHiddenLayers = structureOfNN.size()-2;
 		System.out.println("number of hidden layers: "+numberOfHiddenLayers);
-		
+	
 		NeuronLayer layer;
 		
+		//initialise each layer
 		for(int i=0; i<numberOfLayers; i++)
 		{
 			System.out.println("Creating "+(i+1)+" neuron layer with "+(structureOfNN.get(i)+1)+" neurons");
+			
+			//TODO: specify the reason of bias in PPT
+			//if its not the output layer then we need to initialise a new neuron layer with an extra neuron, bias neuron.
+			//also pass the next layer for weights 
 			if(i < numberOfLayers-1)
 			{
-				 layer = new NeuronLayer(structureOfNN.get(i)+1,structureOfNN.get(i+1)); //an extra input for bias
+				 layer = new NeuronLayer(structureOfNN.get(i)+1,structureOfNN.get(i+1)); 
 			}
 			else
 			{
 				//since for output layer there are no neurons in next layer
-				layer = new NeuronLayer(structureOfNN.get(i)+1,0); //an extra input for bias
+				layer = new NeuronLayer(structureOfNN.get(i)+1,0); 
 			}
+
+			//add the layer to arraylist of neuron layers
 			neuronLayers.add(layer);
 		}
 	}
@@ -106,7 +119,7 @@ public class NeuralNet {
 		}
 		
 		//calculate difference in hidden layers
-			//calculate gradient for hidden layer
+		//calculate gradient for hidden layer
 		for(int i=neuronLayers.size()-2; i>0;i--)
 		{
 			NeuronLayer currentLayer =  neuronLayers.get(i);
@@ -120,7 +133,14 @@ public class NeuralNet {
 		
 		
 		//update the weights from first layer to outputs
-		
+		for (int i = neuronLayers.size() - 1; i > 0; i--) {
+	        NeuronLayer layer = neuronLayers.get(i);
+	        NeuronLayer prevLayer = neuronLayers.get(i-1);
+
+	        for (int j = 0; j < layer.getNeuronVector().size() - 1; j++) {
+	            layer.getNeuronVector().get(j).updateWeights(prevLayer);
+	        }
+	    }
 	}
 
 	//will return the results of the training
@@ -129,9 +149,6 @@ public class NeuralNet {
 		ArrayList<Double> result = new ArrayList<Double>();
 		return result;
 	}
-	
-	
-	//concept of epoch
 
 }
 

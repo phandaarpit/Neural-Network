@@ -16,19 +16,26 @@ public class Neuron {
 
 	private double gradient;
 	
+	private ArrayList<Double> changeInWeights;
+	
+	//learning rate decides the convergence of learning
+	private double learningRate = 0.15;
+	private double momentum = 0.5;
+	
+	
 	public double getGradient() {
 		return gradient;
 	}
-
+	
 	public ArrayList<Double> getWeightsForOutputs() {
 		return weightsForOutputs;
 	}
-
-	private ArrayList<Double> changeInWeights;
 	
-	//it does need to know number of neurons in next layer
-	//just for implementation sake
+	public ArrayList<Double> getDeltaWeights() {
+		return changeInWeights;
+	}
 	
+	//it does need to know number of neurons in next layer, for feeding purpose
 	public Neuron(int numberOfOutputs, int indexInLayer)
 	{
 		//setting local variables
@@ -36,6 +43,7 @@ public class Neuron {
 		
 		//initialization
 		this.inputs = new ArrayList<Double>();
+		
 		this.weightsForOutputs = new ArrayList<Double>();
 		this.changeInWeights = new ArrayList<Double>();
 		
@@ -43,6 +51,8 @@ public class Neuron {
 		{
 			//initial weights have to be random
 			weightsForOutputs.add(Math.random() - Math.random());
+			//initial deltaweights set to 0.0
+			changeInWeights.add(0.0);
 		}
 		
 	}
@@ -50,14 +60,20 @@ public class Neuron {
 	//return the value of the sigmoid activation function
 	public double activationFunction(double input)
 	{
-		return (1/(Math.exp(-input)+1));
+		double activationValue = 1/(Math.exp(-input)+1);
+		System.out.println("Activation Function value: "+activationValue);
+		return activationValue;
 	}
 	
+	//derivative of activation value
 	public double activationFunctionDerivative(double input)
 	{
-		return (-1*Math.exp(-input))/(Math.pow((Math.exp(-input)+1), 2));
+		double derivativeActivationVal = (-1*Math.exp(-input))/(Math.pow((Math.exp(-input)+1), 2));
+		System.out.println("Derivative of activation value: "+derivativeActivationVal);
+		return derivativeActivationVal;
 	}
 	
+	//setter function
 	public void setOutputVal(double value)
 	{
 		this.output = value;
@@ -104,8 +120,18 @@ public class Neuron {
 		return sum;
 	}
 	
-	public void updateWeights()
+	public void updateWeights(NeuronLayer previousLayer)
 	{
-		
+		int sizeOfPrevLayer = previousLayer.getNumberOfNeurons();
+		for(int i = 0 ; i<sizeOfPrevLayer; i++)
+		{
+			Neuron neuron = previousLayer.getNeuronVector().get(i);
+			double prevDeltaWeight = neuron.getDeltaWeights().get(indexInLayer);
+			
+			double newDeltaWeight = learningRate*neuron.getOutputVal()*getGradient() + momentum*prevDeltaWeight;
+			
+			neuron.changeInWeights.set(indexInLayer,newDeltaWeight);
+			neuron.weightsForOutputs.set(indexInLayer, neuron.weightsForOutputs.get(indexInLayer)+newDeltaWeight);
+		}
 	}
 }
