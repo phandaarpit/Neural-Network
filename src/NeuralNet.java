@@ -32,20 +32,21 @@ public class NeuralNet {
 		//number of hidden layers is the total layers i.e. the size of the array-2 layers( one for input and one for output) 
 		this.numberOfHiddenLayers = structureOfNN.size()-2;
 		System.out.println("number of hidden layers: "+numberOfHiddenLayers);
+		System.out.println("---------------------------------===-------------------------------------------");
 	
 		NeuronLayer layer;
 		
 		//initialise each layer
 		for(int i=0; i<numberOfLayers; i++)
 		{
-			System.out.println("Creating "+(i+1)+" neuron layer with "+(structureOfNN.get(i)+1)+" neurons");
+			System.out.println("--> Creating neuron layer number "+(i+1)+" with "+(structureOfNN.get(i)+1)+" neurons");
 			
 			//TODO: specify the reason of bias in PPT
 			//if its not the output layer then we need to initialise a new neuron layer with an extra neuron, bias neuron.
 			//also pass the next layer for weights 
 			if(i < numberOfLayers-1)
 			{
-				 layer = new NeuronLayer(structureOfNN.get(i)+1,structureOfNN.get(i+1)); 
+				 layer = new NeuronLayer(structureOfNN.get(i)+1,structureOfNN.get(i+1)+1); 
 			}
 			else
 			{
@@ -80,6 +81,11 @@ public class NeuralNet {
 			neuronLayers.get(0).getNeuronVector().get(i).setOutputVal(inputs.get(i));
 		}
 		
+		for(int i=0; i<inputs.size(); i++)
+		{
+			System.out.println("==> Input Layer: "+neuronLayers.get(0).getNeuronVector().get(i).getOutputVal());
+		}
+		
 		//after the input layer has been fed forward its time to call feed forward on every neuron of each layer
 		for(int i = 1; i<neuronLayers.size(); i++)
 		{
@@ -93,6 +99,14 @@ public class NeuralNet {
 				layer.getNeuronVector().get(j).feedForward(prevLayer);
 			}
 		}
+		
+		System.out.println("======== OUTPUT ==========");
+		NeuronLayer out  = neuronLayers.get(numberOfLayers-1);
+		for(int i = 0; i<out.getNeuronVector().size()-1;i++)
+		{
+			System.out.println(out.getNeuronVector().get(i).getOutputVal());
+		}
+		
 	}
 	
 	//Takes "target" Values as input since they will be used to find the error difference and that difference
@@ -104,6 +118,8 @@ public class NeuralNet {
 		double error = 0;
 		NeuronLayer outputLayer = neuronLayers.get(this.numberOfLayers-1);
 		int sizeOfOutputLayer = outputLayer.getNeuronVector().size();
+		System.out.println("Size of output layer: "+sizeOfOutputLayer);
+		
 		//iterate over output layer neurons and find the difference between the desired values and actual values
 		for(int i=0; i<sizeOfOutputLayer-1; i++)
 		{
@@ -113,7 +129,7 @@ public class NeuralNet {
 		double rms = Math.sqrt(error/(sizeOfOutputLayer-1));
 		
 		//output gradient
-		for(int i=0; i<sizeOfOutputLayer; i++)
+		for(int i=0; i<sizeOfOutputLayer-1; i++)
 		{
 			outputLayer.getNeuronVector().get(i).setGradient(desiredValues.get(i));
 		}

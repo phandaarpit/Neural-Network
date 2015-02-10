@@ -2,9 +2,6 @@ import java.util.ArrayList;
 
 public class Neuron {
 
-	//each neuron will be fed by all the neurons from previous layer+bias
-	private ArrayList<Double> inputs;
-	
 	//will generate a single output which will be fed to each neuron in forward direction
 	private double output;
 	
@@ -40,9 +37,7 @@ public class Neuron {
 	{
 		//setting local variables
 		this.indexInLayer = indexInLayer;
-		
-		//initialization
-		this.inputs = new ArrayList<Double>();
+		System.out.println("\t\t++Index of Neuron in layer: "+indexInLayer);
 		
 		this.weightsForOutputs = new ArrayList<Double>();
 		this.changeInWeights = new ArrayList<Double>();
@@ -55,20 +50,22 @@ public class Neuron {
 			changeInWeights.add(0.0);
 		}
 		
+		System.out.println("\t\t++Weight Arraylist: "+weightsForOutputs);
+		System.out.println("\t\t++DeltaWeights Arraylist: "+changeInWeights);
 	}
 	
 	//return the value of the sigmoid activation function
 	public double activationFunction(double input)
 	{
-		double activationValue = 1/(Math.exp(-input)+1);
-		System.out.println("Activation Function value: "+activationValue);
+		double activationValue = 1/(Math.exp(-1*input)+1);
+		System.out.println("\t++Activation Function value: "+activationValue);
 		return activationValue;
 	}
 	
 	//derivative of activation value
 	public double activationFunctionDerivative(double input)
 	{
-		double derivativeActivationVal = (-1*Math.exp(-input))/(Math.pow((Math.exp(-input)+1), 2));
+		double derivativeActivationVal = (-1*Math.exp(-1*input))/(Math.pow((Math.exp(-1*input)+1), 2));
 		System.out.println("Derivative of activation value: "+derivativeActivationVal);
 		return derivativeActivationVal;
 	}
@@ -94,9 +91,15 @@ public class Neuron {
 		
 		for (int i = 0; i<layer.getNeuronVector().size(); i++)
 		{
+			System.out.println("-----------------------------------");
+			System.out.println(layer.getNeuronVector().get(i).getOutputVal());
+			System.out.println(layer.getNeuronVector().get(i).getWeightsForOutputs());
+			System.out.println(this.indexInLayer);
+			System.out.println(layer.getNeuronVector().get(i).getWeightsForOutputs().get(this.indexInLayer));
+			System.out.println("-----------------------------------");
 			sum = sum + (layer.getNeuronVector().get(i).getOutputVal()*layer.getNeuronVector().get(i).getWeightsForOutputs().get(this.indexInLayer));
 		}
-		
+		System.out.println("\t++Sum = "+sum);
 		this.output = activationFunction(sum);
 	}
 
