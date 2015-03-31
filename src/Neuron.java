@@ -80,9 +80,23 @@ public class Neuron {
 		this.output = activationFunction(sum);
 	}
 
+    public void feedForward(ArrayList<RBFNeuron> layer)
+    {
+        double sum = 0.0;
+        int sizeOfPrevLayer = layer.size();
+
+        for (int i = 0; i<sizeOfPrevLayer; i++)
+        {
+            sum = sum + (layer.get(i).getOutputVal()*layer.get(i).getWeightVector().get(this.indexInLayer));
+        }
+
+        this.output = activationFunction(sum);
+        System.out.println("Output: "+this.output);
+    }
+
 	public void setGradient(Double targetVal, int currentTestNumber) {
 		double error = targetVal-output;
-		if(currentTestNumber%100==0)
+		if(currentTestNumber%1000==0)
 		{
 			GenerateGraph.addToSet(error, ""+this.indexInLayer, currentTestNumber);
 		}	
@@ -119,6 +133,18 @@ public class Neuron {
 			neuron.weightsForOutputs.set(indexInLayer, neuron.weightsForOutputs.get(indexInLayer)+newDeltaWeight);
 		}
 	}
+
+    public void updateWeights(ArrayList<RBFNeuron> previousLayer)
+    {
+        int sizeOfPrevLayer = previousLayer.size();
+        double learningRate = 0.25;
+        for(int i = 0 ; i<sizeOfPrevLayer; i++)
+        {
+            RBFNeuron neuron = previousLayer.get(i);
+            double newDeltaWeight = learningRate*neuron.getOutputVal()*getGradient();
+            neuron.getWeightVector().set(indexInLayer, neuron.getWeightVector().get(indexInLayer)+newDeltaWeight);
+        }
+    }
 
 	public String getInput() {
 		return ""+this.input;

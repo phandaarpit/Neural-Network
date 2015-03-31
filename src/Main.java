@@ -31,6 +31,7 @@ public class Main {
 		ArrayList<Double> input = new ArrayList<Double>();
 	
 		int option = 8;
+
 		String bufferForChoice;
 		
 		Scanner getInput = new Scanner(System.in);
@@ -68,7 +69,8 @@ public class Main {
 						break;
 				case 2: backpropagateNeuralNetwork(getInput);
 						break;
-				case 3:	System.out.println("Work in progress!");
+				case 3:	rbfNeuralNetwork(getInput);
+                        System.out.println("Work in progress!");
 						break;
 				case 4: System.out.println("Work in progress!");
 						break;
@@ -87,7 +89,211 @@ public class Main {
 		
 	}
 
-	private static void twoD_Kmeans(Scanner getInput) {
+    private static void rbfNeuralNetwork(Scanner getInput) {
+
+        String fileName = "";
+        System.out.print("File name: \t");
+        fileName = getInput.next();
+
+        List<String> entries = new ArrayList<String>();
+        try {
+            entries = Files.readLines(new File(fileName),Charsets.UTF_8);
+        }catch(Exception e)
+        {
+            System.out.println("Couldn't find the file passed");
+        }
+
+        HashMap<Double,ArrayList<ArrayList<Double>>> completeData = new HashMap<Double, ArrayList<ArrayList<Double>>>();
+
+        for(int j=0; j<entries.size(); j++)
+        {
+            ArrayList<Double> newData = new ArrayList<Double>();
+            StringTokenizer readCSV = new StringTokenizer(entries.get(j),",");
+            while(readCSV.hasMoreTokens())
+            {
+                String feed = readCSV.nextToken();
+                newData.add(Double.parseDouble(feed));
+            }
+            double switcher = newData.get(2);
+            if(completeData.get(switcher)==null)
+            {
+                completeData.put(switcher,new ArrayList<ArrayList<Double>>());
+            }
+            else
+            {
+                completeData.get(switcher).add(newData);
+            }
+        }
+
+        GenerateScatterPlot.addToSetFor2DKmeans(completeData);
+
+        displayGraph();
+
+        int numberOfClusters = 15;
+        int numberOfClasses = completeData.keySet().size();
+
+        HashMap<Double,ArrayList<ArrayList<Double>>> centroids = new HashMap<Double, ArrayList<ArrayList<Double>>>();
+        ArrayList<RBFNeuron> layerOfNeurons = new ArrayList<RBFNeuron>();
+
+        for(Double key:completeData.keySet())
+        {
+            ArrayList<ArrayList<Double>> centroidsForClass = new ArrayList<ArrayList<Double>>(numberOfClusters);
+            HashMap<Double,ArrayList<ArrayList<Double>>> coordinateSet = new HashMap<Double, ArrayList<ArrayList<Double>>>();// to store data as per cluster
+            ArrayList<ArrayList<Double>> dataByClassFromComplete = completeData.get(key);
+
+            for(int i=0; i<numberOfClusters; i++)
+            {
+                centroidsForClass.add(dataByClassFromComplete.get(0));
+                coordinateSet.put((double) i, new ArrayList<ArrayList<Double>>());
+            }
+
+            int sizeOfListOfCoordinatesLeft = dataByClassFromComplete.size();
+
+            for(int i=0; i<sizeOfListOfCoordinatesLeft; i++)
+            {
+                double min= Double.MAX_VALUE;
+                double distance=0;
+                int index = -1;
+                for(int j=0; j<numberOfClusters; j++)
+                {
+                    distance = distanceBetweenCoordinates(dataByClassFromComplete.get(i),centroidsForClass.get(j));
+                    if(distance<min)
+                    {
+                        min = distance;
+                        index = j;
+                    }
+                }
+
+                if(index!=-1)
+                {
+                    coordinateSet.get((double) index).add(dataByClassFromComplete.get(i));
+                    ArrayList<Double> newCentroid = updateCentroidCoordinate(coordinateSet.get((double)index));
+                    centroidsForClass.set(index,newCentroid);
+                }
+            }
+            int numberOfSwitches = -1;
+
+            while(numberOfSwitches!=0)
+            {
+                numberOfSwitches = 0;
+                for(int i=0; i<numberOfClusters; i++)
+                {
+
+                    ArrayList<Double> currentCentroid = centroidsForClass.get(i);
+
+                    for(int j=0; j<coordinateSet.get((double)i).size(); j++)
+                    {
+                        double distanceFromHome = distanceBetweenCoordinates(coordinateSet.get((double)i).get(j),currentCentroid);
+                        double min = distanceFromHome;
+                        int index = -1;
+                        for(int k=0; k< numberOfClusters; k++)
+                        {
+                            if(i==k)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                double distanceFromNeighbors = distanceBetweenCoordinates(coordinateSet.get((double)i).get(j),centroidsForClass.get(k));
+                                if(distanceFromNeighbors < min)
+                                {
+                                    min = distanceFromNeighbors;
+                                    index = k;
+                                }
+                            }
+                        }
+                        if(index!=-1)
+                        {
+                            coordinateSet.get((double)index).add(coordinateSet.get((double)i).get(j));
+                            coordinateSet.get((double)i).remove(j);
+                            j--;
+                            numberOfSwitches+=1;
+                        }
+                    }
+                }
+
+                for(int i=0; i<numberOfClusters; i++)
+                {
+                    if(centroidsForClass.get(i).size()!=0)
+                    {
+                        ArrayList<Double> newCentroid = updateCentroidCoordinate(coordinateSet.get((double)i));
+                        centroidsForClass.set(i,newCentroid);
+                    }
+                }
+            }
+
+            int clusterCount = 0;
+
+            for(ArrayList<Double> cent: centroidsForClass)
+            {
+                if (coordinateSet.get((double) clusterCount).size()!=0)
+                {
+                    RBFNeuron neuron = new RBFNeuron(numberOfClasses);
+                    neuron.setMean(cent);
+                    neuron.setBetaVal(coordinateSet.get((double) clusterCount));
+                    layerOfNeurons.add(neuron);
+                }
+                clusterCount += 1;
+            }
+
+            GenerateScatterPlot.addToCurrent(centroidsForClass);
+
+        }
+
+        RBFNeuron n = new RBFNeuron(numberOfClasses);
+        n.setOutputVal(1);
+        layerOfNeurons.add(n);
+
+        ArrayList<Neuron> outputLayer = new ArrayList<Neuron>();
+        for(int i=0; i<numberOfClasses; i++)
+        {
+            outputLayer.add(new Neuron(0,i));
+        }
+
+        int runNumber = 0;
+
+        while(runNumber < 1000000)
+        {
+            int randomClass = (int)(Math.random()*1000)%numberOfClasses;
+            randomClass+=1;
+
+            int sizeOfSet = completeData.get((double)randomClass).size();
+            int randomInSet = (int)(Math.random()*100000)%sizeOfSet;
+
+            ArrayList<Double> coordinate = completeData.get((double)randomClass).get(randomInSet);
+
+            for(int i=0; i<layerOfNeurons.size()-1; i++)
+            {
+                layerOfNeurons.get(i).rbfActivation(coordinate);
+            }
+
+            String binary =  Integer.toBinaryString(randomClass);
+
+            while (binary.length()!=numberOfClasses)
+            {
+                binary = "0"+binary;
+            }
+
+            for(int i=0; i<outputLayer.size(); i++)
+            {
+                outputLayer.get(i).feedForward(layerOfNeurons);
+                outputLayer.get(i).setGradient(Double.parseDouble("" +binary.charAt(i)),runNumber);
+            }
+
+            for(int i=0; i<outputLayer.size(); i++)
+            {
+                outputLayer.get(i).updateWeights(layerOfNeurons);
+            }
+            runNumber+=1;
+        }
+
+        GenerateGraph chart = new GenerateGraph("Error");
+        chart.pack();
+        RefineryUtilities.centerFrameOnScreen(chart);
+        chart.setVisible(true);
+    }
+
+    private static void twoD_Kmeans(Scanner getInput) {
         List<String> entries = new ArrayList<String>();
         try {
             entries = Files.readLines(new File("dataset.csv"),Charsets.UTF_8);
