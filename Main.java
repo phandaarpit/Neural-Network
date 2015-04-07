@@ -12,12 +12,16 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+import graph.generator.PlotCities;
 import org.jfree.ui.RefineryUtilities;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 import test.generator.TestGenerator;
+import travelling.salesman.genetic.City;
+import travelling.salesman.genetic.GeneticAlgo;
+import travelling.salesman.genetic.Population;
 
 
 public class Main {
@@ -52,7 +56,8 @@ public class Main {
 			System.out.println("5. Single Layer Perceptron");
 			System.out.println("6. K-means one dimensional");
 			System.out.println("7. K-means two dimensional");
-			System.out.println("8. Exit");
+            System.out.println("8. Travelling Salesman Problem using Genetic Algorithm");
+			System.out.println("9. Exit");
 			
 			System.out.print("\nEnter your choice: \t");
 			bufferForChoice = getInput.next();
@@ -80,7 +85,9 @@ public class Main {
 						break;
 				case 7:	twoD_Kmeans(getInput);
 						break;
-				case 8: System.exit(0);
+                case 8: travelling_salesman_genetic(getInput);
+                        break;
+				case 9: System.exit(0);
 				default: System.out.println("Enter a valid choice");
 				
 			}
@@ -88,6 +95,52 @@ public class Main {
 		}
 		
 	}
+
+    private static void travelling_salesman_genetic(Scanner getInput) {
+        String fileName = "";
+        System.out.print("Name of the File: \t");
+        fileName = getInput.next();
+
+        List<String> citiesCoordinates = null;
+        try {
+            citiesCoordinates = Files.readLines(new File("Cities.txt"),Charsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<City> list_cities = new ArrayList<City>();
+        for(String coordinate: citiesCoordinates)
+        {
+            StringTokenizer token = new StringTokenizer(coordinate,",");
+            double x = Double.parseDouble(token.nextToken());
+            double y = Double.parseDouble(token.nextToken());
+
+            list_cities.add(new City(x,y));
+        }
+
+        int totalCities = list_cities.size();
+
+        PlotCities.addToSet(list_cities,"1");
+        PlotCities scatter = new PlotCities("Scatter");
+        scatter.pack();
+        RefineryUtilities.centerFrameOnScreen(scatter);
+        scatter.setVisible(true);
+
+        Population pop = new Population(50, true, list_cities);
+        System.out.println("Initial distance: " + pop.getFittest().getDistance());
+        // Evolve population for 100 generations
+        pop = GeneticAlgo.evolvePopulation(pop,list_cities);
+
+        for (int i = 0; i < 100; i++) {
+            pop = GeneticAlgo.evolvePopulation(pop,list_cities);
+        }
+
+        System.out.println("Finished");
+        System.out.println("Final distance: " + pop.getFittest().getDistance());
+        System.out.println("Solution:");
+        System.out.println(pop.getFittest());
+
+    }
 
     private static void rbfNeuralNetwork(Scanner getInput) {
 
