@@ -3,10 +3,7 @@ import graph.generator.GenerateScatterPlot;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -88,6 +85,7 @@ public class Main {
                 case 8: travelling_salesman_genetic(getInput);
                         break;
 				case 9: System.exit(0);
+
 				default: System.out.println("Enter a valid choice");
 				
 			}
@@ -128,7 +126,6 @@ public class Main {
 
         Population pop = new Population(50, true, list_cities);
         System.out.println("Initial distance: " + pop.getFittest().getDistance());
-        // Evolve population for 100 generations
         pop = GeneticAlgo.evolvePopulation(pop,list_cities);
 
         for (int i = 0; i < 100; i++) {

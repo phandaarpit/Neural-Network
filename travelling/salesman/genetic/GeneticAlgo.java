@@ -9,7 +9,6 @@ public class GeneticAlgo {
 
     private static final double mutationRate = 0.015;
     private static final int tournamentSize = 5;
-//    private static final boolean flag = true;
     private static int numberOfCities;
 
     public static Population evolvePopulation(Population p,ArrayList<City> allCities) {
@@ -17,10 +16,8 @@ public class GeneticAlgo {
         numberOfCities= allCities.size();
 
         int elitismOffset = 0;
-//        if (flag) {
         newPopulation.routes.set(0, p.getFittest());
         elitismOffset = 1;
-//        }
 
         for (int i = elitismOffset; i < newPopulation.routes.size(); i++) {
             Route parent_first = tournamentSelection(p);
