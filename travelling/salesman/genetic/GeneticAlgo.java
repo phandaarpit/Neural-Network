@@ -8,15 +8,17 @@ import java.util.ArrayList;
 public class GeneticAlgo {
 
     private static final double mutationRate = 0.015;
-    private static final int tournamentSize = 5;
+    private static final int sampleSize = 5;
     private static int numberOfCities;
 
     public static Population evolvePopulation(Population p,ArrayList<City> allCities) {
-        Population newPopulation = new Population(p.routes.size(), false, allCities);
+        Population newPopulation = new Population(p.routes.size(), false);
         numberOfCities= allCities.size();
 
         int elitismOffset = 0;
+
         newPopulation.routes.set(0, p.getFittest());
+
         elitismOffset = 1;
 
         for (int i = elitismOffset; i < newPopulation.routes.size(); i++) {
@@ -41,11 +43,11 @@ public class GeneticAlgo {
 
         for (int i = 0; i < child.routeCities.size(); i++) {
             if (startPos < endPos && i > startPos && i < endPos) {
-                child.routeCities.set(i, parent1.routeCities.get(i));
+                child.setCity(i, parent1.routeCities.get(i));
             }
             else if (startPos > endPos) {
                 if (!(i < startPos && i > endPos)) {
-                    child.routeCities.set(i, parent1.routeCities.get(i));
+                    child.setCity(i, parent1.routeCities.get(i));
                 }
             }
         }
@@ -54,7 +56,7 @@ public class GeneticAlgo {
             if (!child.routeCities.contains(parent2.routeCities.get(i))) {
                 for (int j = 0; j < child.routeCities.size(); j++) {
                     if (child.routeCities.get(j) == null) {
-                        child.routeCities.set(j, parent2.routeCities.get(i));
+                        child.setCity(j, parent2.routeCities.get(i));
                         break;
                     }
                 }
@@ -69,15 +71,15 @@ public class GeneticAlgo {
                 int tourPos2 = (int) (route.routeCities.size() * Math.random());
                 City city1 = route.routeCities.get(tourPos1);
                 City city2 = route.routeCities.get(tourPos2);
-                route.routeCities.set(tourPos2, city1);
-                route.routeCities.set(tourPos1, city2);
+                route.setCity(tourPos2, city1);
+                route.setCity(tourPos1, city2);
             }
         }
     }
 
     private static Route tournamentSelection(Population pop) {
-        Population sampleSpace = new Population(tournamentSize, false);
-        for (int i = 0; i < tournamentSize; i++) {
+        Population sampleSpace = new Population(sampleSize, false);
+        for (int i = 0; i < sampleSize; i++) {
             int randomId = (int) (Math.random() * pop.routes.size());
             sampleSpace.routes.set(i, pop.routes.get(randomId));
         }

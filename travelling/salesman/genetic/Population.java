@@ -14,6 +14,12 @@ public class Population {
         routes = new ArrayList<Route>();
         sizeOfPopulation = populationSize;
 
+        if (!initialise) {
+            for (int i = 0; i < populationSize; i++) {
+                routes.add(null);
+            }
+        }
+
         if (initialise) {
             for (int i = 0; i < populationSize; i++) {
                 Route route = new Route(allCities[0]);

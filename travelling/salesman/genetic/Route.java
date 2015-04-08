@@ -32,7 +32,7 @@ public class Route {
 
     public double calculateDistance()
     {
-        double distance=0;
+        double m_distance=0;
 
         for(int i=0; i<numberOfCities; i++)
         {
@@ -44,10 +44,10 @@ public class Route {
             else
                 nextCity = routeCities.get(i+1);
 
-            distance = distance+city.distanceFromCity(nextCity);
+            m_distance = m_distance+city.distanceFromCity(nextCity);
         }
-        this.distance = distance;
-
+        distance = m_distance;
+        System.out.println("Distance = "+distance);
         return distance;
     }
 
@@ -56,11 +56,11 @@ public class Route {
     {
         for(int i=0; i<allCities.size(); i++)
         {
-            routeCities.set(i,allCities.get(i));
+            routeCities.set(i, allCities.get(i));
         }
-        System.out.println(routeCities);
+        System.out.println("Before: "+routeCities);
         Collections.shuffle(routeCities);
-        System.out.println(routeCities);
+        System.out.println("After: "+routeCities);
     }
 
     public double calculateFitness()
@@ -71,11 +71,6 @@ public class Route {
         }
         return fitness;
     }
-
-//    public boolean checkCityExistence(City city)
-//    {
-//       return routeCities.contains(city);
-//    }
 
     public ArrayList<City> getRoute()
     {
@@ -94,4 +89,21 @@ public class Route {
         return fitness;
     }
 
+    public void setCity(int index, City city)
+    {
+        routeCities.set(index,city);
+        fitness = 0;
+        distance = 0;
+    }
+
+    @Override
+    public String toString()
+    {
+        String str = "";
+        for(City city: routeCities)
+        {
+            str = str+city+"->";
+        }
+        return  str;
+    }
 }
