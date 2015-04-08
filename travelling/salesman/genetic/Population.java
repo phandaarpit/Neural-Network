@@ -31,7 +31,6 @@ public class Population {
 
     public Route getFittest() {
         Route fittest = routes.get(0);
-
         for (int i = 1; i < sizeOfPopulation ; i++) {
             double candidateFitness = routes.get(i).getFitness();
             if (fittest.getFitness() <= candidateFitness) {

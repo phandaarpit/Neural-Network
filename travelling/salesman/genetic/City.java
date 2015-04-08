@@ -13,9 +13,10 @@ public class City {
 
     public double distanceFromCity(City city)
     {
-        double diffX = Math.abs(this.XCoordinate-city.XCoordinate);
-        double diffY = Math.abs(this.YCoordinate-city.YCoordinate);
+        double diffX = Math.abs(XCoordinate-city.XCoordinate);
+        double diffY = Math.abs(YCoordinate-city.YCoordinate);
         double distance = Math.sqrt(Math.pow(diffX,2)+Math.pow(diffY,2));
+
         return distance;
     }
 

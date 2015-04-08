@@ -28,6 +28,7 @@ public class Route {
     public Route(ArrayList<City> route)
     {
         this.routeCities = route;
+        this.numberOfCities = route.size();
     }
 
     public double calculateDistance()
@@ -40,12 +41,13 @@ public class Route {
             City city = routeCities.get(i);
 
             if((i+1)==numberOfCities)
-                nextCity = routeCities.get(0);
+            { nextCity = routeCities.get(0);}
             else
-                nextCity = routeCities.get(i+1);
+            { nextCity = routeCities.get(i+1);}
 
             m_distance = m_distance+city.distanceFromCity(nextCity);
         }
+        System.out.println("M_distance: "+m_distance);
         distance = m_distance;
         System.out.println("Distance = "+distance);
         return distance;
@@ -65,9 +67,12 @@ public class Route {
 
     public double calculateFitness()
     {
-        if(fitness==0)
+        System.out.println("Calculating fitness, right now fitness ="+fitness);
+
+        if((int)fitness==0)
         {
-            fitness = 1.0/calculateDistance();
+            System.out.println("Here");
+            fitness = (double)1.0/(double)calculateDistance();
         }
         return fitness;
     }
@@ -79,7 +84,9 @@ public class Route {
 
     public double getDistance()
     {
-        calculateDistance();
+        if(distance==0) {
+            calculateDistance();
+        }
         return distance;
     }
 

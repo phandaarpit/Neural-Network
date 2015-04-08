@@ -123,12 +123,14 @@ public class Main {
         scatter.pack();
         RefineryUtilities.centerFrameOnScreen(scatter);
         scatter.setVisible(true);
-
+                /****   Working till here   **********/
         Population pop = new Population(50, true, list_cities);
+
+        System.out.println("Finding out the fittest");
         System.out.println("Initial distance: " + pop.getFittest().getDistance());
         pop = GeneticAlgo.evolvePopulation(pop,list_cities);
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 200; i++) {
             pop = GeneticAlgo.evolvePopulation(pop,list_cities);
         }
 
