@@ -10,6 +10,10 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import graph.generator.PlotCities;
+import neural.network.genetic.algo.GA_NeuralNet;
+import neural.network.genetic.algo.GA_NeuronLayer;
+import neural.network.genetic.algo.WeightChromo;
+import neural.network.genetic.algo.WeightPopulation;
 import org.jfree.ui.RefineryUtilities;
 
 import com.google.common.base.Charsets;
@@ -72,9 +76,8 @@ public class Main {
 				case 2: backpropagateNeuralNetwork(getInput);
 						break;
 				case 3:	rbfNeuralNetwork(getInput);
-                        System.out.println("Work in progress!");
 						break;
-				case 4: System.out.println("Work in progress!");
+				case 4: ga_neural_network(getInput);
 						break;
 				case 5: singleLayerPerceptron(getInput);
 						break;
@@ -93,6 +96,126 @@ public class Main {
 		}
 		
 	}
+
+    private static void ga_neural_network(Scanner getInput) {
+        int numberOfInputs;
+        int numberOfOutput;
+        int numberOfHiddenLayers;
+        String bufferForFileNames;
+        ArrayList<String> trainingDataFiles = new ArrayList<String>();
+
+        ArrayList<Integer> structure = new ArrayList<Integer>();
+
+        System.out.println("\nBack-propagation Neural Network: ");
+        System.out.println("--------------------------------\n");
+
+        System.out.print("Number Of inputs\t\t:");
+        numberOfInputs = Integer.parseInt(getInput.next());
+
+        System.out.print("Number of Outputs\t\t:");
+        numberOfOutput = Integer.parseInt(getInput.next());
+
+        System.out.print("Number Of hidden layers\t\t:");
+        numberOfHiddenLayers = Integer.parseInt(getInput.next());
+
+        structure.add(numberOfInputs);
+
+        for(int i=0; i<numberOfHiddenLayers; i++)
+        {
+            System.out.print("\tNumber of Neurons in hidden layer "+i+":");
+            structure.add(Integer.parseInt(getInput.next()));
+        }
+        structure.add(numberOfOutput);
+
+        System.out.print("Enter Training Data Files[Separated by comma]\t:");
+        getInput.nextLine();
+
+        bufferForFileNames = getInput.nextLine();
+
+        GA_NeuralNet genetic_network = new GA_NeuralNet(structure);
+        int sizeOfEachChromo = 0;
+
+        for(int i=0; i<structure.size()-1;i++)
+        {
+            sizeOfEachChromo = (structure.get(i)+1)*structure.get(i+1) + sizeOfEachChromo;
+        }
+
+        //creating a population of 50 chromosomes
+        WeightPopulation population = new WeightPopulation(true,50,sizeOfEachChromo);
+//        WeightChromo chromo = population.getFittest();
+
+        ArrayList<ArrayList<Double>> trainingSets = new ArrayList<ArrayList<Double>>();
+        ArrayList<ArrayList<Double>> targetValues = new ArrayList<ArrayList<Double>>();
+        int size = 0;
+
+        StringTokenizer tokens = new StringTokenizer(bufferForFileNames,",");
+        int count = 0;
+
+        while(tokens.hasMoreElements())
+        {
+            List<String> entries = new ArrayList<String>();
+            ArrayList<ArrayList<Double>> tempSetForPlot = new ArrayList<ArrayList<Double>>();
+
+            try {
+                entries = Files.readLines(new File(tokens.nextToken().trim()), Charsets.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+
+            ArrayList<Double> output = processOutput(entries.get(0));
+
+            entries.remove(0);
+            StringTokenizer tokenizeEntries;
+            size = size+entries.size();
+            for (String entry : entries) {
+                ArrayList<Double> trainingSet = new ArrayList<Double>();
+                tokenizeEntries = new StringTokenizer(entry.replace("[", "").replace("]", ""),",");
+
+                while(tokenizeEntries.hasMoreElements())
+                {
+                    trainingSet.add(Double.parseDouble(tokenizeEntries.nextToken().trim()));
+                }
+
+                tempSetForPlot.add(trainingSet);
+                trainingSets.add(trainingSet);
+                targetValues.add(output);
+            }
+
+            GenerateScatterPlot.addToSet(tempSetForPlot, "class"+count);
+            count += 1;
+        }
+
+        displayGraph();
+
+        for(int i=0; i<1000; i++) {
+            for (WeightChromo chromo : population.population) {
+                int randNum = ((int)(Math.random()*10000000))%size;
+                updateWeightsNeurons(genetic_network, chromo);
+                genetic_network.feedForwardNN(trainingSets.get(randNum));
+                genetic_network.getNetworkError(targetValues.get(randNum));
+            }
+        }
+
+
+
+    }
+
+    private static void updateWeightsNeurons(GA_NeuralNet genetic_network, WeightChromo chromo) {
+        int count = 0;
+
+        for(int i=0; i<genetic_network.getNeuronLayers().size()-1; i++)
+        {
+            GA_NeuronLayer layer = genetic_network.getNeuronLayers().get(i);
+            GA_NeuronLayer nextLayer = genetic_network.getNeuronLayers().get(i);
+
+            for(int k=0; k<layer.getNeuronVector().size(); i++)
+            {
+                layer.getNeuronVector().get(k).setWeightsForOutputs((ArrayList<Double>)chromo.getWeightArray().subList(count,count+(nextLayer.getNeuronVector().size() - 1)));
+                count = count+count+nextLayer.getNeuronVector().size()-1;
+            }
+        }
+    }
 
     private static void travelling_salesman_genetic(Scanner getInput) {
         String fileName = "";
