@@ -10,10 +10,7 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import graph.generator.PlotCities;
-import neural.network.genetic.algo.GA_NeuralNet;
-import neural.network.genetic.algo.GA_NeuronLayer;
-import neural.network.genetic.algo.WeightChromo;
-import neural.network.genetic.algo.WeightPopulation;
+import neural.network.genetic.algo.*;
 import org.jfree.ui.RefineryUtilities;
 
 import com.google.common.base.Charsets;
@@ -30,7 +27,8 @@ public class Main {
 	public static void main(String[] args) {
 
 		ArrayList<Integer> structureOfNN = new ArrayList<Integer>();
-		ArrayList<ArrayList<Double>> targetValues = new ArrayList<ArrayList<Double>>();
+
+        ArrayList<ArrayList<Double>> targetValues = new ArrayList<ArrayList<Double>>();
 
 		ArrayList<ArrayList<Double>> inputs = new ArrayList<ArrayList<Double>>();
 		ArrayList<Double> input = new ArrayList<Double>();
@@ -142,7 +140,6 @@ public class Main {
 
         //creating a population of 50 chromosomes
         WeightPopulation population = new WeightPopulation(true,50,sizeOfEachChromo);
-//        WeightChromo chromo = population.getFittest();
 
         ArrayList<ArrayList<Double>> trainingSets = new ArrayList<ArrayList<Double>>();
         ArrayList<ArrayList<Double>> targetValues = new ArrayList<ArrayList<Double>>();
@@ -188,17 +185,22 @@ public class Main {
 
         displayGraph();
 
-        for(int i=0; i<1000; i++) {
+        for(int i=0; i<10000; i++) {
+            int randNum = ((int)(Math.random()*10000000))%size;
+
             for (WeightChromo chromo : population.population) {
-                int randNum = ((int)(Math.random()*10000000))%size;
                 updateWeightsNeurons(genetic_network, chromo);
                 genetic_network.feedForwardNN(trainingSets.get(randNum));
-                genetic_network.getNetworkError(targetValues.get(randNum));
+                double error = genetic_network.getNetworkError(targetValues.get(randNum),i);
+                chromo.setFitness(error);
             }
+            population = Genetic_Algo.evolvePopulation(population);
         }
 
-
-
+        GenerateGraph chart = new GenerateGraph("Error");
+        chart.pack();
+        RefineryUtilities.centerFrameOnScreen(chart);
+        chart.setVisible(true);
     }
 
     private static void updateWeightsNeurons(GA_NeuralNet genetic_network, WeightChromo chromo) {
@@ -207,12 +209,19 @@ public class Main {
         for(int i=0; i<genetic_network.getNeuronLayers().size()-1; i++)
         {
             GA_NeuronLayer layer = genetic_network.getNeuronLayers().get(i);
-            GA_NeuronLayer nextLayer = genetic_network.getNeuronLayers().get(i);
+            int layerLimit = layer.getNeuronVector().size();
+            GA_NeuronLayer nextLayer = genetic_network.getNeuronLayers().get(i+1);
 
-            for(int k=0; k<layer.getNeuronVector().size(); i++)
+            for(int k=0; k<layerLimit; k++)
             {
-                layer.getNeuronVector().get(k).setWeightsForOutputs((ArrayList<Double>)chromo.getWeightArray().subList(count,count+(nextLayer.getNeuronVector().size() - 1)));
-                count = count+count+nextLayer.getNeuronVector().size()-1;
+                ArrayList<Double> newArray = new ArrayList<Double>();
+                int limit = count+(nextLayer.getNeuronVector().size() - 1);
+                for(int j=count; j<limit; j++)
+                {
+                    newArray.add(chromo.getWeightArray().get(j));
+                }
+                layer.getNeuronVector().get(k).setWeightsForOutputs(newArray);
+                count = count+nextLayer.getNeuronVector().size()-1;
             }
         }
     }

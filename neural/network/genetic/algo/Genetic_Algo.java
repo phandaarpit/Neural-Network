@@ -1,5 +1,9 @@
 package neural.network.genetic.algo;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
 /**
 * Created by arpit on 11/4/15.
 */
@@ -11,18 +15,37 @@ public class Genetic_Algo {
     public static WeightPopulation evolvePopulation(WeightPopulation p) {
         WeightPopulation newPopulation = new WeightPopulation(false,p.population.size());
 
-        int elitismOffset = 1;
         newPopulation.population.set(0, p.getFittest());
 
-        for (int i = elitismOffset; i < newPopulation.population.size(); i++) {
-            WeightChromo parent_first = selection(p);
-            WeightChromo parent_second = selection(p);
+        Collections.sort(p.population);
 
-            WeightChromo child = crossover(parent_first, parent_second);
-            newPopulation.population.set(i, child);
+        int targetSize = p.population.size();
+
+        boolean done = false;
+        int curr = 1;
+
+        for(int i=0; i<5; i++)
+        {
+            WeightChromo parent_first = p.population.get(i);
+            for(int j=i+1; j<i+11;j++) {
+
+                WeightChromo parent_second = p.population.get(j);
+                WeightChromo child = crossover(parent_first, parent_second);
+                newPopulation.population.set(curr, child);
+                curr+=1;
+
+                if(curr==targetSize) {
+                    done = true;
+                    break;
+                }
+            }
+            if(done)
+            {
+                break;
+            }
         }
 
-        for (int i = elitismOffset; i < newPopulation.population.size(); i++) {
+        for (int i = 1; i < newPopulation.population.size(); i++) {
             mutate(newPopulation.population.get(i));
         }
         return newPopulation;
@@ -67,18 +90,5 @@ public class Genetic_Algo {
                 chromo.setGene(tourPos1, v2);
             }
         }
-    }
-
-    private static WeightChromo selection(WeightPopulation pop) {
-        WeightPopulation sampleSpace = new WeightPopulation(false,sampleSize);
-
-        for (int i = 0; i < sampleSize; i++) {
-            int randomId = (int) (Math.random() * pop.population.size());
-            sampleSpace.population.set(i, pop.population.get(randomId));
-        }
-
-        WeightChromo fittest = sampleSpace.getFittest();
-
-        return fittest;
     }
 }

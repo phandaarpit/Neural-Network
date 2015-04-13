@@ -1,5 +1,7 @@
 package neural.network.genetic.algo;
 
+import graph.generator.GenerateGraph;
+
 import java.util.ArrayList;
 
 /**
@@ -65,15 +67,17 @@ public class GA_NeuralNet {
         }
     }
 
-    public double getNetworkError(ArrayList<Double> targetValues)
+    public double getNetworkError(ArrayList<Double> targetValues, int runNumber)
     {
         GA_NeuronLayer lastLayer = neuronLayers.get(numberOfLayers-1);
         double error = 0;
 
         for(int i=0; i<lastLayer.getNeuronVector().size()-1;i++)
         {
-            error = Math.abs(lastLayer.getNeuronVector().get(i).getError());
+            error = error + Math.abs(lastLayer.getNeuronVector().get(i).getError(targetValues.get(i)));
         }
+
+        GenerateGraph.addToSet(error, "" + "1", runNumber);
         return error;
     }
 }

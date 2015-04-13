@@ -1,11 +1,12 @@
 package neural.network.genetic.algo;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by arpit on 11/4/15.
  */
-public class WeightChromo {
+public class WeightChromo implements Comparable{
 
     private ArrayList<Double> weightArray;
     private double fitness = 0;
@@ -55,5 +56,17 @@ public class WeightChromo {
         weightArray.set(i,value);
 
         fitness = 0;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        WeightChromo chromo = (WeightChromo)o;
+
+        if(this.getFitness()>chromo.getFitness()) {
+            return -1;
+        }
+        else {
+            return 1;
+        }
     }
 }

@@ -59,21 +59,22 @@ public class GA_Neuron {
         this.output = activationFunction(sum);
     }
 
-    public void setGradient(Double targetVal, int currentTestNumber) {
-        this.error = targetVal-output;
-        GenerateGraph.addToSet(error, "" + this.indexInLayer, currentTestNumber);
-    }
+//    public void setGradient(Double targetVal, int currentTestNumber) {
+//        this.error = targetVal-output;
+//        GenerateGraph.addToSet(error, "" + this.indexInLayer, currentTestNumber);
+//    }
 
     public String getInput() {
         return ""+this.input;
     }
 
-    public void setError(double d) {
-        this.error = d;
-    }
+//    public void setError(double d) {
+//        this.error = d;
+//    }
 
-    public double getError()
+    public double getError(double targetValue)
     {
+        this.error = targetValue-output;
         return this.error;
     }
 
