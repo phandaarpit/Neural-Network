@@ -3,11 +3,7 @@ import graph.generator.GenerateScatterPlot;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import graph.generator.PlotCities;
 import neural.network.genetic.algo.*;
@@ -17,6 +13,8 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 import test.generator.TestGenerator;
+import travelling.salesman.ant.colony.optimization.ACO_Algo;
+import travelling.salesman.ant.colony.optimization.City_ACO;
 import travelling.salesman.genetic.City;
 import travelling.salesman.genetic.GeneticAlgo;
 import travelling.salesman.genetic.Population;
@@ -25,8 +23,7 @@ import travelling.salesman.genetic.Population;
 public class Main {
 
 	public static void main(String[] args) {
-
-		ArrayList<Integer> structureOfNN = new ArrayList<Integer>();
+        ArrayList<Integer> structureOfNN = new ArrayList<Integer>();
 
         ArrayList<ArrayList<Double>> targetValues = new ArrayList<ArrayList<Double>>();
 
@@ -56,7 +53,8 @@ public class Main {
 			System.out.println("6. K-means one dimensional");
 			System.out.println("7. K-means two dimensional");
             System.out.println("8. Travelling Salesman Problem using Genetic Algorithm");
-			System.out.println("9. Exit");
+            System.out.println("9. Travelling Salesman Problem using Ant Colony Optimization");
+            System.out.println("10. Exit");
 			
 			System.out.print("\nEnter your choice: \t");
 			bufferForChoice = getInput.next();
@@ -85,7 +83,9 @@ public class Main {
 						break;
                 case 8: travelling_salesman_genetic(getInput);
                         break;
-				case 9: System.exit(0);
+                case 9: travelling_salesman_aco(getInput);
+                        break;
+				case 10: System.exit(0);
 
 				default: System.out.println("Enter a valid choice");
 				
@@ -94,6 +94,40 @@ public class Main {
 		}
 		
 	}
+
+    private static void travelling_salesman_aco(Scanner getInput) {
+        String fileName = "";
+        System.out.print("Name of the File: \t");
+        fileName = getInput.next();
+
+        List<String> citiesCoordinates = null;
+        try {
+            citiesCoordinates = Files.readLines(new File(fileName),Charsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<City_ACO> list_cities = new ArrayList<City_ACO>();
+        for(String coordinate: citiesCoordinates)
+        {
+            StringTokenizer token = new StringTokenizer(coordinate,",");
+            double x = Double.parseDouble(token.nextToken());
+            double y = Double.parseDouble(token.nextToken());
+
+            list_cities.add(new City_ACO(x,y));
+        }
+
+        int totalCities = list_cities.size();
+
+        PlotCities.addToSetACO(list_cities, "1");
+        PlotCities scatter = new PlotCities("Scatter");
+        scatter.pack();
+        RefineryUtilities.centerFrameOnScreen(scatter);
+        scatter.setVisible(true);
+
+        ACO_Algo algo = new ACO_Algo(list_cities);
+
+    }
 
     private static void ga_neural_network(Scanner getInput) {
         int numberOfInputs;
@@ -233,7 +267,7 @@ public class Main {
 
         List<String> citiesCoordinates = null;
         try {
-            citiesCoordinates = Files.readLines(new File("Cities.txt"),Charsets.UTF_8);
+            citiesCoordinates = Files.readLines(new File(fileName),Charsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -336,7 +370,7 @@ public class Main {
             for(int i=0; i<sizeOfListOfCoordinatesLeft; i++)
             {
                 double min= Double.MAX_VALUE;
-                double distance=0;
+                double distance;
                 int index = -1;
                 for(int j=0; j<numberOfClusters; j++)
                 {

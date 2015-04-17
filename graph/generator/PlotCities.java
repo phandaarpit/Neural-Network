@@ -11,6 +11,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
+import travelling.salesman.ant.colony.optimization.City_ACO;
 import travelling.salesman.genetic.City;
 
 public class PlotCities extends ApplicationFrame{
@@ -45,6 +46,21 @@ public class PlotCities extends ApplicationFrame{
         XYSeries series = new XYSeries(classOfData);
         for (City city : coordinates) {
             series.add(city.XCoordinate,city.YCoordinate);
+        }
+
+        dataset.addSeries(series);
+    }
+
+    public static void addToSetACO(ArrayList<City_ACO> coordinates, String classOfData)
+    {
+        if(dataset == null)
+        {
+            dataset = new XYSeriesCollection();
+        }
+
+        XYSeries series = new XYSeries(classOfData);
+        for (City_ACO city : coordinates) {
+            series.add(city.x,city.y);
         }
 
         dataset.addSeries(series);
